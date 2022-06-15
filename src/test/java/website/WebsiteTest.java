@@ -2,51 +2,64 @@ package website;
 
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.openqa.selenium.support.locators.RelativeLocator.with;
 
 // Teszt osztály
+@Slf4j
+@SeleniumTest
+@ExtendWith(LoggingExtension.class)
 class WebsiteTest {
-
-    WebDriver driver;
-
-    @BeforeAll
-    static void initWebDriverManager() {
-        WebDriverManager.chromedriver().setup();
-    }
-
-    @BeforeEach
-    void initDriver() {
-        ChromeOptions options = new ChromeOptions();
-        options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
-        driver = new ChromeDriver(options);
-        driver.get("https://www.python.org");
-    }
-
-    @AfterEach
-    void quitDriver() {
-//        driver.quit();
-    }
-
     // Teszteset
-    @Test
-    void testSearch() {
-        // Given
 
+    @Test
+    @DisplayName("Középső elem alatti elem kiíratás")
+    void testElemkivalasztas(WebDriver driver) {
+        driver.get("http://127.0.0.1:5500/grid/index.html");
+        var cell5 = driver.findElement(By.cssSelector("tr:nth-child(2) > td:nth-child(2)"));
+        var cell2 = driver.findElement(with(By.tagName("td")).below(cell5));
+        String result = cell2.getText();
+        assertEquals("2", result);
+    }
+
+
+    @Test
+    @DisplayName("Test setting the border of the input element")
+    void testSetBorder(WebDriver webdriver){
+        webdriver.get("http://127.0.0.1:5500/index.html");
+        WebElement input =webdriver.findElement(By.id("field-to-validate"));
+        String value = input.getText();
+        if (value.equals("")) {
+            ((JavascriptExecutor) webdriver).executeScript(
+                    "arguments[0].style['border'] = '3px solid red'; ", input);
+        }
+
+
+        }
+
+
+    @Test
+    void testSearch(WebDriver driver) {
+        // Given
+        driver.get("https://www.python.org/");
         // When
         driver.findElement(By.id("id-search-field")).click();
         driver.findElement(By.id("id-search-field")).sendKeys("testing");
         driver.findElement(By.id("submit")).click();
+        log.debug("Click on GO button");
 
         // Then
         String result = driver.findElement(By.cssSelector("h3:nth-child(2)")).getText();
@@ -54,9 +67,13 @@ class WebsiteTest {
     }
 
     @Test
-    void testPsf() {
+    void testPsf(WebDriver driver) {
+        driver.get("https://www.python.org/");
         driver.findElement(By.linkText("PSF")).click();
+        log.debug("Click on PDF menu item");
         assertEquals("Python Software Foundation", driver.getTitle());
     }
+
+
 
 }
