@@ -28,6 +28,6 @@ public class Messagestest {
         log.debug("A szöveg egyezik!");
 
 
-
+//vnc viewer
     }
 }
